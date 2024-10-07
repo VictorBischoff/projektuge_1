@@ -24,8 +24,8 @@ function checkUserNumber(userInputCheck) {
   if (validateUserInput(userInputCheck) === true) {
     if (userInputCheck != randNumber) {
       alert("incorrect");
-      let newScore = currentUserScore + 1;
-      userScore.innerHTML = newScore;
+      currentUserScore -= 1;
+      userScore.innerHTML = currentUserScore;
     } else {
       alert("correct");
     }
@@ -34,8 +34,10 @@ function checkUserNumber(userInputCheck) {
   }
 
   againButton.addEventListener("click", () => {
-    randNumber = Math.floor(Math.random() * 21); // Reset the random number
-    userScore.textContent = "Score reset"; // Example to reset score if needed
+    randNumber = Math.floor(Math.random() * 21);
+    userScore.innerHTML = 0;
+    currentUserScore = 0;
+    console.log(randNumber);
   });
 }
 
