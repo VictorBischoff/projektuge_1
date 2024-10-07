@@ -1,77 +1,93 @@
-// find elementer i html fil og lav variabler
-// Valider brugerens input
-// lav funktion til at finde et tilfældigt tal og matche det brugerens input
-
-// get the input html element
+// Get html elements 
 const userNumberInput = document.querySelector('.guess');
-// check button 
 const userNumberButton = document.querySelector('.check');
-
-// get the score from the html element 
-let userScore = document.querySelector('.score');
-// convert the score to a Number
-let currentUserScore = parseInt(userScore.innerHTML);
-// get highscore from html element
-let highScore = document.querySelector('.highscore');
-// convert the highscore to a Number
-let currentHighScore = parseInt(highScore.innerHTML);
-// again! button
+const userScore = document.querySelector('.score');
+const highScore = document.querySelector('.highscore');
 const againButton = document.querySelector('.again');
-// this element starts as a question mark, and should convert to winning number
 const topNumber = document.querySelector('.number');
+const guessMessage = document.querySelector(".message");
 
-let randNumber = Math.floor(Math.random() * (21 - 1) + 1);
-console.log(randNumber);
-// validate that entered number is between 1 and 20
-function validateUserInput(userInput) {
-  if (userInput > 0 && userInput < 21) {
-    return true;
-  } else {
-    return false;
-  }
+// Global variables
+let currentUserScore = parseInt(userScore.innerHTML);
+let currentHighScore = parseInt(highScore.innerHTML);
+let guessedNumbers = [];
+let randNumber = generateRandomNumber();
+
+// Utility function to generate a random number between 1 and 20
+function generateRandomNumber() {
+  return Math.floor(Math.random() * 20) + 1;
 }
-// helper function for clearing the input field
+
+// Validate that entered number is between 1 and 20
+function validateUserInput(userInput) {
+  return userInput > 0 && userInput <= 20;
+}
+
+// Utility function to clear input field
 function clearInputField(element) {
   element.value = '';
 }
-// helper function to determine if a new highscore is to be set 
-function updateHighScore(currentScore, currentHigh) {
-  if (currentHigh < currentScore) {
-    currentHigh = currentScore;
-    highScore.innerHTML = currentHigh;
+
+// Update scores 
+function updateScore() {
+  userScore.innerHTML = currentUserScore;
+}
+
+function updateHighScore() {
+  if (currentUserScore > currentHighScore) {
+    currentHighScore = currentUserScore;
+    highScore.innerHTML = currentHighScore;
   }
 }
 
+// Update HTML text content
 function updateHtmlText(element, string) {
-  element.innerHTML = `${string}`;
+  element.innerHTML = string;
 }
 
+// Display guessed numbers
+function displayGuesses(guessesList) {
+  guessMessage.innerHTML = guessesList.join(' ');
+}
+
+// Reset the game
+function resetGame() {
+  randNumber = generateRandomNumber();
+  currentUserScore = 20;
+  updateScore();
+  updateHtmlText(topNumber, "?");
+  guessedNumbers = [];
+  updateHtmlText(guessMessage, "Start guessing...");
+  clearInputField(userNumberInput);
+}
+
+// Main logic 
 function checkUserNumber(userInputCheck) {
-  if (validateUserInput(userInputCheck) === true) {
-    if (userInputCheck != randNumber) {
-      currentUserScore -= 1;
-      userScore.innerHTML = currentUserScore;
-      clearInputField(userNumberInput);
-    } else {
-      updateHighScore(currentUserScore, currentHighScore)
-      updateHtmlText(topNumber, userNumberInput.value);
-      clearInputField(userNumberInput);
-      alert('You guessed the number!')
-    }
-  } else {
-    alert('Number must be between 0-20!');
+  if (!validateUserInput(userInputCheck)) {
+    alert('Number must be between 1 and 20!');
+    return;
   }
 
-  againButton.addEventListener('click', () => {
-    randNumber = Math.floor(Math.random() * (21 - 1) + 1);
-    userScore.innerHTML = 20;
-    currentUserScore = 20;
-    clearInputField(userNumberInput)
-    console.log(randNumber);
-  });
+  if (userInputCheck !== randNumber) {
+    currentUserScore--;
+    updateScore();
+  } else {
+    updateHighScore();
+    updateHtmlText(topNumber, userInputCheck);
+    alert('You guessed the number!');
+  }
+
+  clearInputField(userNumberInput);
 }
 
+// Event Listeners
 userNumberButton.addEventListener('click', () => {
   const userNumber = Number(userNumberInput.value);
+  if (validateUserInput(userNumber)) {
+    guessedNumbers.push(userNumber);
+  };
+  displayGuesses(guessedNumbers);
   checkUserNumber(userNumber);
 });
+
+againButton.addEventListener('click', resetGame);
